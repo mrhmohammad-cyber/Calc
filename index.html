@@ -2,65 +2,73 @@
 <html lang="fa" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>ماشین حساب</title>
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#222222">
+<meta name="theme-color" content="#0f0c29">
 <style>
-  * { box-sizing: border-box; font-family: sans-serif; }
-  body { margin: 0; background: #222; color: #fff; height: 100vh;
-         display: flex; flex-direction: column; justify-content: flex-end; }
-  #screen { padding: 20px; text-align: left; direction: ltr;
-            font-size: 48px; min-height: 120px; word-break: break-all;
-            display: flex; align-items: flex-end; justify-content: flex-end; }
-  #grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px;
-          background: #444; direction: ltr; }
-  button { border: 0; background: #333; color: #fff; font-size: 28px;
-           padding: 24px 0; }
-  button:active { background: #555; }
-  .op { background: #f39c12; }
-  .op:active { background: #d68910; }
-  .clr { background: #c0392b; }
+  * { box-sizing: border-box; font-family: system-ui, sans-serif; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; margin: 0; }
+  body { background: radial-gradient(circle at 20% 10%, #302b63 0%, #0f0c29 60%, #000 100%);
+         color: #fff; display: flex; flex-direction: column; justify-content: flex-end;
+         padding: 16px 14px calc(16px + env(safe-area-inset-bottom)); overflow: hidden; }
+  #display { direction: ltr; text-align: right; padding: 10px 12px 18px; }
+  #hist { min-height: 26px; font-size: 20px; color: #8e8bb8; word-break: break-all; }
+  #screen { font-size: 64px; font-weight: 300; line-height: 1.15; word-break: break-all;
+            text-shadow: 0 0 18px rgba(0,229,255,.45); }
+  #screen.m { font-size: 44px; } #screen.s { font-size: 30px; }
+  #grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; direction: ltr; }
+  button { border: 1px solid rgba(255,255,255,.12); color: #fff; font-size: 28px;
+           height: 74px; border-radius: 24px; cursor: pointer;
+           background: rgba(255,255,255,.07); backdrop-filter: blur(10px);
+           box-shadow: 0 6px 18px rgba(0,0,0,.35); transition: transform .08s, filter .08s; }
+  button:active { transform: scale(.93); filter: brightness(1.4); }
+  .op { background: linear-gradient(135deg, #00e5ff, #7c4dff); border: 0; }
+  .fn { background: rgba(255,255,255,.16); color: #00e5ff; }
+  .eq { background: linear-gradient(135deg, #ff4081, #ff9100); border: 0;
+        grid-column: span 2; box-shadow: 0 0 22px rgba(255,64,129,.55); }
 </style>
 </head>
 <body>
-<div id="screen">0</div>
+<div id="display"><div id="hist"></div><div id="screen">0</div></div>
 <div id="grid">
-  <button class="clr" onclick="clr()">C</button>
-  <button onclick="back()">⌫</button>
-  <button class="op" onclick="add('%')">%</button>
+  <button class="fn" onclick="clr()">C</button>
+  <button class="fn" onclick="back()">⌫</button>
+  <button class="fn" onclick="add('%')">%</button>
   <button class="op" onclick="add('/')">÷</button>
-  <button onclick="add('7')">7</button>
-  <button onclick="add('8')">8</button>
-  <button onclick="add('9')">9</button>
-  <button class="op" onclick="add('*')">×</button>
-  <button onclick="add('4')">4</button>
-  <button onclick="add('5')">5</button>
-  <button onclick="add('6')">6</button>
-  <button class="op" onclick="add('-')">−</button>
-  <button onclick="add('1')">1</button>
-  <button onclick="add('2')">2</button>
-  <button onclick="add('3')">3</button>
-  <button class="op" onclick="add('+')">+</button>
-  <button onclick="add('0')">0</button>
-  <button onclick="add('.')">.</button>
-  <button class="op" style="grid-column: span 2" onclick="calc()">=</button>
+  <button onclick="add('7')">7</button><button onclick="add('8')">8</button>
+  <button onclick="add('9')">9</button><button class="op" onclick="add('*')">×</button>
+  <button onclick="add('4')">4</button><button onclick="add('5')">5</button>
+  <button onclick="add('6')">6</button><button class="op" onclick="add('-')">−</button>
+  <button onclick="add('1')">1</button><button onclick="add('2')">2</button>
+  <button onclick="add('3')">3</button><button class="op" onclick="add('+')">+</button>
+  <button onclick="add('0')">0</button><button onclick="add('.')">.</button>
+  <button class="eq" onclick="calc()">=</button>
 </div>
 <script>
 let expr = '';
 const screen = document.getElementById('screen');
-function show(t) { screen.textContent = t === '' ? '0' : t; }
-function add(c) { expr += c; show(expr); }
-function clr() { expr = ''; show(''); }
-function back() { expr = expr.slice(0, -1); show(expr); }
+const hist = document.getElementById('hist');
+const pretty = s => s.replace(/\*/g,'×').replace(/\//g,'÷').replace(/-/g,'−');
+function show(t) {
+  screen.textContent = t === '' ? '0' : pretty(t);
+  const n = screen.textContent.length;
+  screen.className = n > 14 ? 's' : n > 8 ? 'm' : '';
+}
+function vib() { if (navigator.vibrate) navigator.vibrate(12); }
+function add(c) { vib(); expr += c; show(expr); }
+function clr() { vib(); expr = ''; hist.textContent = ''; show(''); }
+function back() { vib(); expr = expr.slice(0, -1); show(expr); }
 function calc() {
+  vib();
   if (!/^[0-9+\-*\/.%() ]+$/.test(expr)) return;
   try {
-    const r = Function('"use strict"; return (' + expr + ')')();
-    if (!isFinite(r)) { expr = ''; show('تقسیم بر صفر ممکن نیست'); return; }
+    const r = Function('"use strict"; return (' + expr.replace(/%/g, '/100') + ')')();
+    if (!isFinite(r)) { hist.textContent = pretty(expr); expr = ''; screen.textContent = 'تقسیم بر صفر ممکن نیست'; screen.className = 's'; return; }
+    hist.textContent = pretty(expr) + ' =';
     expr = String(Math.round(r * 1e10) / 1e10);
     show(expr);
-  } catch (e) { expr = ''; show('خطا'); }
+  } catch (e) { expr = ''; screen.textContent = 'خطا'; }
 }
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
 </script>
