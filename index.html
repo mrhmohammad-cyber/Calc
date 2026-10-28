@@ -7,70 +7,123 @@
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#0f0c29">
 <style>
-  * { box-sizing: border-box; font-family: system-ui, sans-serif; -webkit-tap-highlight-color: transparent; }
-  html, body { height: 100%; margin: 0; }
-  body { background: radial-gradient(circle at 20% 10%, #302b63 0%, #0f0c29 60%, #000 100%);
-         color: #fff; display: flex; flex-direction: column; justify-content: flex-end;
-         padding: 16px 14px calc(16px + env(safe-area-inset-bottom)); overflow: hidden; }
-  #display { direction: ltr; text-align: right; padding: 10px 12px 18px; }
-  #hist { min-height: 26px; font-size: 20px; color: #8e8bb8; word-break: break-all; }
-  #screen { font-size: 64px; font-weight: 300; line-height: 1.15; word-break: break-all;
-            text-shadow: 0 0 18px rgba(0,229,255,.45); }
-  #screen.m { font-size: 44px; } #screen.s { font-size: 30px; }
-  #grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; direction: ltr; }
-  button { border: 1px solid rgba(255,255,255,.12); color: #fff; font-size: 28px;
-           height: 74px; border-radius: 24px; cursor: pointer;
-           background: rgba(255,255,255,.07); backdrop-filter: blur(10px);
-           box-shadow: 0 6px 18px rgba(0,0,0,.35); transition: transform .08s, filter .08s; }
-  button:active { transform: scale(.93); filter: brightness(1.4); }
-  .op { background: linear-gradient(135deg, #00e5ff, #7c4dff); border: 0; }
-  .fn { background: rgba(255,255,255,.16); color: #00e5ff; }
-  .eq { background: linear-gradient(135deg, #ff4081, #ff9100); border: 0;
-        grid-column: span 2; box-shadow: 0 0 22px rgba(255,64,129,.55); }
+*{box-sizing:border-box;font-family:system-ui,sans-serif;-webkit-tap-highlight-color:transparent;user-select:none}
+html,body{height:100%;margin:0;overflow:hidden}
+body{background:radial-gradient(circle at 20% 0%,#302b63 0%,#0f0c29 60%,#000 100%);color:#fff;display:flex;flex-direction:column;padding:env(safe-area-inset-top) 10px calc(10px + env(safe-area-inset-bottom))}
+#top{display:flex;gap:8px;padding:8px 2px;direction:ltr}
+.tab{flex:1;padding:8px;border-radius:12px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.06);color:#9aa;font-size:14px;text-align:center}
+.tab.on{color:#00e5ff;border-color:#00e5ff;box-shadow:0 0 12px rgba(0,229,255,.4)}
+#disp{flex:1;direction:ltr;text-align:right;padding:6px 10px;display:flex;flex-direction:column;justify-content:flex-end;position:relative;overflow:hidden;min-height:120px}
+#hist{position:absolute;inset:0 0 auto 0;max-height:100%;overflow-y:auto;padding:8px 10px;background:rgba(10,8,30,.96);display:none;z-index:5}
+#hist.show{display:block}
+#hist div{padding:8px 0;border-bottom:1px solid rgba(255,255,255,.08);color:#8e8bb8;font-size:18px}
+#hist b{display:block;color:#fff;font-size:22px;font-weight:400}
+#hist .clr{color:#ff4081;text-align:center;border:0;padding:12px}
+#expr{min-height:28px;font-size:22px;color:#8e8bb8;word-break:break-all}
+#res{font-size:56px;font-weight:300;line-height:1.1;word-break:break-all;text-shadow:0 0 18px rgba(0,229,255,.45)}
+#res.m{font-size:40px}#res.s{font-size:28px}
+#res.drop{animation:drop .6s cubic-bezier(.3,1.4,.5,1)}
+@keyframes drop{0%{transform:translateY(-190px);opacity:0}60%{opacity:1}100%{transform:translateY(0)}}
+#sci{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;direction:ltr;margin-bottom:7px}
+#sci.hide{display:none}
+#grid{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;direction:ltr}
+button{border:0;color:#fff;font-size:24px;height:58px;border-radius:18px;cursor:pointer;background:linear-gradient(180deg,#4a4580 0%,#2b2759 100%);box-shadow:0 6px 0 #14113a,0 10px 14px rgba(0,0,0,.5),inset 0 2px 0 rgba(255,255,255,.28);transition:transform .07s,box-shadow .07s}
+button:active{transform:translateY(5px);box-shadow:0 1px 0 #14113a,0 3px 6px rgba(0,0,0,.5),inset 0 2px 0 rgba(255,255,255,.15)}
+#sci button{height:44px;font-size:16px;border-radius:14px;box-shadow:0 4px 0 #14113a,0 7px 10px rgba(0,0,0,.45),inset 0 2px 0 rgba(255,255,255,.25)}
+#sci button:active{transform:translateY(3px);box-shadow:0 1px 0 #14113a,inset 0 2px 0 rgba(255,255,255,.12)}
+.op{background:linear-gradient(180deg,#22e6ff 0%,#6a4cff 100%);box-shadow:0 6px 0 #2b1f8a,0 10px 14px rgba(0,0,0,.5),inset 0 2px 0 rgba(255,255,255,.45)}
+.op:active{box-shadow:0 1px 0 #2b1f8a,0 3px 6px rgba(0,0,0,.5)}
+.fn{background:linear-gradient(180deg,#5b5890 0%,#3a3670 100%);color:#00e5ff}
+.eq{background:linear-gradient(180deg,#ff6a9a 0%,#ff7a00 100%);box-shadow:0 6px 0 #9c2a00,0 10px 18px rgba(255,64,129,.4),inset 0 2px 0 rgba(255,255,255,.45)}
+.eq:active{box-shadow:0 1px 0 #9c2a00,0 3px 6px rgba(0,0,0,.5)}
 </style>
 </head>
 <body>
-<div id="display"><div id="hist"></div><div id="screen">0</div></div>
+<div id="top">
+<div class="tab on" id="tSci" onclick="toggleSci()">مهندسی</div>
+<div class="tab" id="tHist" onclick="toggleHist()">تاریخچه</div>
+<div class="tab" id="tDeg" onclick="toggleDeg()">DEG</div>
+</div>
+<div id="disp">
+<div id="hist"></div>
+<div id="expr"></div>
+<div id="res">0</div>
+</div>
+<div id="sci">
+<button class="fn" onclick="add('sin(')">sin</button>
+<button class="fn" onclick="add('cos(')">cos</button>
+<button class="fn" onclick="add('tan(')">tan</button>
+<button class="fn" onclick="add('log(')">log</button>
+<button class="fn" onclick="add('ln(')">ln</button>
+<button class="fn" onclick="add('asin(')">sin⁻¹</button>
+<button class="fn" onclick="add('acos(')">cos⁻¹</button>
+<button class="fn" onclick="add('atan(')">tan⁻¹</button>
+<button class="fn" onclick="add('√(')">√</button>
+<button class="fn" onclick="add('^')">xʸ</button>
+<button class="fn" onclick="add('π')">π</button>
+<button class="fn" onclick="add('e')">e</button>
+<button class="fn" onclick="add('!')">n!</button>
+<button class="fn" onclick="add('(')">(</button>
+<button class="fn" onclick="add(')')">)</button>
+</div>
 <div id="grid">
-  <button class="fn" onclick="clr()">C</button>
-  <button class="fn" onclick="back()">⌫</button>
-  <button class="fn" onclick="add('%')">%</button>
-  <button class="op" onclick="add('/')">÷</button>
-  <button onclick="add('7')">7</button><button onclick="add('8')">8</button>
-  <button onclick="add('9')">9</button><button class="op" onclick="add('*')">×</button>
-  <button onclick="add('4')">4</button><button onclick="add('5')">5</button>
-  <button onclick="add('6')">6</button><button class="op" onclick="add('-')">−</button>
-  <button onclick="add('1')">1</button><button onclick="add('2')">2</button>
-  <button onclick="add('3')">3</button><button class="op" onclick="add('+')">+</button>
-  <button onclick="add('0')">0</button><button onclick="add('.')">.</button>
-  <button class="eq" onclick="calc()">=</button>
+<button class="fn" onclick="clr()">C</button>
+<button class="fn" onclick="back()">⌫</button>
+<button class="fn" onclick="add('%')">%</button>
+<button class="op" onclick="add('÷')">÷</button>
+<button onclick="add('7')">7</button><button onclick="add('8')">8</button><button onclick="add('9')">9</button><button class="op" onclick="add('×')">×</button>
+<button onclick="add('4')">4</button><button onclick="add('5')">5</button><button onclick="add('6')">6</button><button class="op" onclick="add('−')">−</button>
+<button onclick="add('1')">1</button><button onclick="add('2')">2</button><button onclick="add('3')">3</button><button class="op" onclick="add('+')">+</button>
+<button onclick="add('0')">0</button><button onclick="add('.')">.</button><button class="fn" onclick="ans()">Ans</button><button class="eq" onclick="calc()">=</button>
 </div>
 <script>
-let expr = '';
-const screen = document.getElementById('screen');
-const hist = document.getElementById('hist');
-const pretty = s => s.replace(/\*/g,'×').replace(/\//g,'÷').replace(/-/g,'−');
-function show(t) {
-  screen.textContent = t === '' ? '0' : pretty(t);
-  const n = screen.textContent.length;
-  screen.className = n > 14 ? 's' : n > 8 ? 'm' : '';
+let ex='',last='0',deg=true,H=[];
+try{H=JSON.parse(localStorage.getItem('h')||'[]')}catch(e){}
+const E=document.getElementById('expr'),R=document.getElementById('res'),HI=document.getElementById('hist');
+function vib(n){try{navigator.vibrate&&navigator.vibrate(n||15)}catch(e){}}
+function fit(){const n=R.textContent.length;R.className=n>14?'s':n>9?'m':''}
+function add(c){vib();R.classList.remove('drop');ex+=c;E.textContent='';R.textContent=ex;fit()}
+function clr(){vib(30);ex='';E.textContent='';R.textContent='0';R.className=''}
+function back(){vib();ex=ex.slice(0,-1);R.textContent=ex===''?'0':ex;fit()}
+function ans(){add(last)}
+function fact(n){if(n<0||n%1)return NaN;let r=1;for(let i=2;i<=n;i++)r*=i;return r}
+function err(){vib(80);E.textContent=ex;ex='';R.textContent='خطا';R.className='s'}
+function calc(){
+ vib([25,30,25]);
+ if(!ex)return;
+ let s=ex.replace(/×/g,'*').replace(/÷/g,'/').replace(/−/g,'-').replace(/\^/g,'**').replace(/π/g,'(Math.PI)').replace(/√\(/g,'Math.sqrt(');
+ s=s.replace(/(\d+(\.\d+)?)%/g,'($1/100)');
+ s=s.replace(/(\d+(\.\d+)?|\))!/g,'fact($1)');
+ s=s.replace(/\be\b/g,'(Math.E)');
+ const k=deg?'*Math.PI/180':'';
+ const kk=deg?'*180/Math.PI':'';
+ s=s.replace(/asin\(/g,'(x=>Math.asin(x)'+kk+')(').replace(/acos\(/g,'(x=>Math.acos(x)'+kk+')(').replace(/atan\(/g,'(x=>Math.atan(x)'+kk+')(');
+ s=s.replace(/(?<![a-z])sin\(/g,'(x=>Math.sin(x'+k+'))(').replace(/(?<![a-z])cos\(/g,'(x=>Math.cos(x'+k+'))(').replace(/(?<![a-z])tan\(/g,'(x=>Math.tan(x'+k+'))(');
+ s=s.replace(/\blog\(/g,'Math.log10(').replace(/\bln\(/g,'Math.log(');
+ if(/[^0-9+\-*\/.()\s,a-zA-Z_=>]/.test(s)){err();return}
+ try{
+  let o=0,c=0;for(const ch of s){if(ch==='(')o++;if(ch===')')c++}
+  s+=')'.repeat(Math.max(0,o-c));
+  let r=Function('fact','"use strict";return ('+s+')')(fact);
+  if(typeof r!=='number'||!isFinite(r)){err();return}
+  r=Math.round(r*1e10)/1e10;
+  const t=String(r);
+  H.unshift({e:ex,r:t});H=H.slice(0,50);
+  try{localStorage.setItem('h',JSON.stringify(H))}catch(e){}
+  E.textContent=ex+' =';last=t;ex=t;R.textContent=t;fit();
+  R.classList.remove('drop');void R.offsetWidth;R.classList.add('drop');
+ }catch(e){err()}
 }
-function vib() { if (navigator.vibrate) navigator.vibrate(12); }
-function add(c) { vib(); expr += c; show(expr); }
-function clr() { vib(); expr = ''; hist.textContent = ''; show(''); }
-function back() { vib(); expr = expr.slice(0, -1); show(expr); }
-function calc() {
-  vib();
-  if (!/^[0-9+\-*\/.%() ]+$/.test(expr)) return;
-  try {
-    const r = Function('"use strict"; return (' + expr.replace(/%/g, '/100') + ')')();
-    if (!isFinite(r)) { hist.textContent = pretty(expr); expr = ''; screen.textContent = 'تقسیم بر صفر ممکن نیست'; screen.className = 's'; return; }
-    hist.textContent = pretty(expr) + ' =';
-    expr = String(Math.round(r * 1e10) / 1e10);
-    show(expr);
-  } catch (e) { expr = ''; screen.textContent = 'خطا'; }
+function toggleSci(){vib();document.getElementById('sci').classList.toggle('hide');document.getElementById('tSci').classList.toggle('on')}
+function toggleDeg(){vib();deg=!deg;document.getElementById('tDeg').textContent=deg?'DEG':'RAD'}
+function toggleHist(){vib();renderH();HI.classList.toggle('show');document.getElementById('tHist').classList.toggle('on')}
+function renderH(){
+ HI.innerHTML='';
+ if(!H.length){HI.innerHTML='<div>هنوز چیزی نیست</div>';return}
+ H.forEach(h=>{const d=document.createElement('div');d.innerHTML=h.e+' =<b>'+h.r+'</b>';d.onclick=()=>{ex=h.r;R.textContent=h.r;E.textContent='';fit();toggleHist()};HI.appendChild(d)});
+ const c=document.createElement('div');c.className='clr';c.textContent='پاک کردن تاریخچه';c.onclick=()=>{H=[];try{localStorage.removeItem('h')}catch(e){}renderH()};HI.appendChild(c);
 }
-if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
+if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js');
 </script>
 </body>
 </html>

@@ -1,4 +1,4 @@
-const C = 'calc-v2';
+const C = 'calc-v3';
 const F = ['./', './index.html', './manifest.json'];
 self.addEventListener('install', e => {
   self.skipWaiting();
